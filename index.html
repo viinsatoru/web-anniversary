@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Viin Birthday</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          background: 'var(--background)',
+          foreground: 'var(--foreground)',
+          primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+          secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+          accent: 'var(--accent)',
+          card: 'var(--card)',
+          border: 'var(--border)',
+          'muted-foreground': 'var(--muted-foreground)',
+          chapter: 'var(--chapter)',
+          ring: 'var(--ring)',
+        },
+        fontFamily: {
+          serif: ['"Playfair Display"', 'serif'],
+          script: ['"Dancing Script"', 'cursive'],
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+
+<style>
+  :root{
+    --background: #100a1c;
+    --foreground: #f6f1fb;
+    --primary: #a685fa;
+    --primary-foreground: #180f2b;
+    --secondary: #241a3a;
+    --secondary-foreground: #f6f1fb;
+    --accent: #f2a6d8;
+    --card: #1a1230;
+    --border: #35284f;
+    --muted-foreground: #b6a8cf;
+    --chapter: #f592c4;
+    --ring: #a685fa;
+  }
+
+  * { -webkit-tap-highlight-color: transparent; }
+
+  html { scroll-behavior: smooth; }
+  html, body{ overflow-x: hidden; }
+
+  body{
+    /* Sea/ocean gradient: pekat hitam di atas -> ungu tua -> pendaran ungu terang di dasar */
+    background: linear-gradient(to bottom, #09090b 0%, #110c24 40%, #1a0f3c 70%, #241154 100%) !important;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    width: 100%;
+    color: var(--foreground);
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    position: relative;
+  }
+
+  /* ---------- Ocean FX: waves + aurora glow (di atas gradasi body, di bawah konten) ---------- */
+  .ocean-fx{
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .aurora-glow{
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    animation: auroraDrift 20s ease-in-out infinite alternate;
+  }
+  .aurora-glow-1{ width: 60vw; height: 60vw; left: -12vw; top: -12vh;  background: radial-gradient(circle, #7c5cd6, transparent 70%); animation-duration: 20s; }
+  .aurora-glow-2{ width: 55vw; height: 55vw; right: -15vw; top: 18vh; background: radial-gradient(circle, #b872b0, transparent 70%); animation-duration: 24s; animation-delay: -4s; opacity: 0.4; }
+  .aurora-glow-3{ width: 65vw; height: 65vw; left: 8vw; bottom: -22vh; background: radial-gradient(circle, #5b21b6, transparent 70%); animation-duration: 22s; animation-delay: -8s; }
+  .aurora-glow-4{ width: 45vw; height: 45vw; right: 4vw; bottom: 8vh;  background: radial-gradient(circle, #8b5cf6, transparent 70%); animation-duration: 26s; animation-delay: -12s; opacity: 0.35; }
+
+  @keyframes auroraDrift{
+    0%   { transform: translate(0,0) scale(1); }
+    50%  { transform: translate(4vw, -3vh) scale(1.08); }
+    100% { transform: translate(-3vw, 4vh) scale(0.96); }
+  }
+
+  .wave-wrap{
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 45%, transparent 92%);
+    mask-image: linear-gradient(to bottom, black 0%, black 45%, transparent 92%);
+  }
+  .wave-svg{
+    position: absolute;
+    top: 0; left: 0;
+    width: 200%;
+    height: 100%;
+  }
+  .wave-svg.wave-back{ opacity: 0.3; animation: waveScroll 24s linear infinite reverse; }
+  .wave-svg.wave-front{ opacity: 0.42; animation: waveScroll 16s linear infinite; }
+
+  @keyframes waveScroll{
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .aurora-glow, .wave-svg{ animation: none !important; }
+  }
+
+  /* ---------- Sea bubble background effect ---------- */
+  .bubble-container{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .bubble{
+    position: absolute;
+    bottom: -40px;
+    border-radius: 9999px;
+    /* warna solid (bukan color-mix) supaya tetap tampil di semua browser/WebView */
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85) 0%, rgba(214,188,250,0.55) 35%, rgba(140,92,246,0.28) 70%, rgba(140,92,246,0) 100%);
+    border: 1px solid rgba(216,196,255,0.8);
+    box-shadow: 0 0 6px rgba(196,163,255,0.55), inset 0 0 4px rgba(255,255,255,0.5);
+    opacity: 0.9;
+    animation-name: bubbleRise, bubbleWobble;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: 1, infinite;
+    animation-fill-mode: forwards, none;
+    will-change: transform, opacity;
+  }
+  @keyframes bubbleRise{
+    from { transform: translateY(0); opacity: 0.9; }
+    92%  { opacity: 0.7; }
+    to   { transform: translateY(-110vh); opacity: 0; }
+  }
+  @keyframes bubbleWobble{
+    0%, 100% { margin-left: 0; }
+    50%      { margin-left: var(--wobble, 20px); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bubble{ animation: none; display: none; }
+  }
+  /* Bubble statis (murni CSS, tidak bergantung JS sama sekali) — loop selamanya */
+  .bubble-static{
+    animation-iteration-count: infinite, infinite;
+  }
+
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* Aurora hero background */
+  .aurora-bg{
+    background:
+      radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 45%),
+      radial-gradient(circle at 80% 15%, color-mix(in oklab, var(--accent) 30%, transparent) 0%, transparent 50%),
+      radial-gradient(circle at 50% 80%, color-mix(in oklab, var(--primary) 25%, transparent) 0%, transparent 55%);
+    animation: auroraShift 14s ease-in-out infinite alternate;
+    background-size: 160% 160%;
+  }
+  @keyframes auroraShift{
+    0%   { background-position: 0% 0%, 100% 0%, 50% 100%; }
+    100% { background-position: 20% 20%, 80% 10%, 40% 80%; }
+  }
+
+  .gradient-text{
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @keyframes fadeUp{
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up{ animation: fadeUp 0.9s ease-out both; }
+
+  @keyframes bottleFloat{
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-14px) rotate(2deg); }
+  }
+  .animate-bottle{ animation: bottleFloat 4.5s ease-in-out infinite; }
+
+  .bottle-leaving{
+    animation: bottleLeave 0.6s ease-in forwards;
+  }
+  @keyframes bottleLeave{
+    to { opacity: 0; transform: translateY(-40px) scale(0.7); }
+  }
+
+  @keyframes letterPop{
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .animate-letter-pop{ animation: letterPop 0.5s ease-out both; }
+
+  @keyframes floaty{
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  .animate-floaty{ animation: floaty 3.2s ease-in-out infinite; }
+
+  @keyframes vinylSpin{
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .animate-vinyl{ animation: vinylSpin 3s linear infinite; }
+
+  .typing-cursor::after{
+    content: "|";
+    display: inline-block;
+    margin-left: 1px;
+    animation: blink 0.9s steps(1) infinite;
+  }
+  @keyframes blink{ 50% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce){
+    .aurora-bg, .animate-fade-up, .animate-bottle, .animate-letter-pop, .animate-floaty, .animate-vinyl{
+      animation: none !important;
+    }
+  }
+
+  ::selection{ background: color-mix(in oklab, var(--primary) 50%, transparent); }
+</style>
+</head>
+
+<body class="relative min-h-screen w-full bg-background">
+<div class="bubble-container" id="bubbleContainer"></div>
+
+<div class="ocean-fx" aria-hidden="true">
+  <div class="aurora-glow aurora-glow-1"></div>
+  <div class="aurora-glow aurora-glow-2"></div>
+  <div class="aurora-glow aurora-glow-3"></div>
+  <div class="aurora-glow aurora-glow-4"></div>
+
+  <div class="wave-wrap">
+    <svg class="wave-svg wave-back" viewBox="0 0 2400 170" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path id="waveShapeBack" d="M0 90 C 200 150 400 30 600 90 C 800 150 1000 30 1200 90 L1200 170 L0 170 Z" fill="#7c5cd6" fill-opacity="0.55"></path>
+      <use href="#waveShapeBack" x="1200" fill="#7c5cd6" fill-opacity="0.55"></use>
+    </svg>
+    <svg class="wave-svg wave-front" viewBox="0 0 2400 170" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path id="waveShapeFront" d="M0 110 C 200 50 400 170 600 110 C 800 50 1000 170 1200 110 L1200 170 L0 170 Z" fill="#5b21b6" fill-opacity="0.65"></path>
+      <use href="#waveShapeFront" x="1200" fill="#5b21b6" fill-opacity="0.65"></use>
+    </svg>
+  </div>
+</div>
+
+<!-- ================= TOP NAV ================= -->
+<header class="fixed inset-x-0 top-0 z-50 px-4 pt-4">
+  <nav class="mx-auto flex max-w-5xl items-center justify-between rounded-2xl border border-border bg-background/50 px-4 py-3 backdrop-blur-xl md:px-6">
+    <a href="#interface" class="flex items-center gap-2">
+      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary text-base">🎂</span>
+      <span class="font-serif text-lg font-semibold tracking-tight text-foreground">Viin Birthday</span>
+    </a>
+
+    <ul class="hidden items-center gap-1 md:flex">
+      <li><a href="#interface" class="rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Interface</a></li>
+      <li><a href="#memories" class="rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Our Memories</a></li>
+      <li><a href="#gallery" class="rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Gallery</a></li>
+      <li><a href="#letter" class="rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">The Letter</a></li>
+      <li><a href="#wishes" class="rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Wishes</a></li>
+    </ul>
+
+    <button id="menuBtn" type="button" class="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground md:hidden" aria-label="Open menu" aria-expanded="false">
+      <svg id="menuIconOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg id="menuIconClose" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="hidden"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </nav>
+
+  <ul id="mobileMenu" class="mx-auto mt-2 hidden max-w-5xl flex-col gap-1 rounded-2xl border border-border bg-background/80 p-2 backdrop-blur-xl md:hidden">
+    <li><a href="#interface" class="mobile-link block rounded-xl px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Interface</a></li>
+    <li><a href="#memories" class="mobile-link block rounded-xl px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Our Memories</a></li>
+    <li><a href="#gallery" class="mobile-link block rounded-xl px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Gallery</a></li>
+    <li><a href="#letter" class="mobile-link block rounded-xl px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">The Letter</a></li>
+    <li><a href="#wishes" class="mobile-link block rounded-xl px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">Wishes</a></li>
+  </ul>
+</header>
+
+<main class="relative min-h-screen w-full max-w-6xl mx-auto bg-transparent">
+
+  <!-- ================= HERO ================= -->
+  <section id="interface" class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pt-24">
+    <div class="aurora-bg pointer-events-none absolute inset-0 -z-10 opacity-80"></div>
+    <div class="pointer-events-none absolute inset-0 -z-10" style="background: radial-gradient(circle at center, transparent 40%, var(--background) 95%);"></div>
+
+    <div class="mx-auto flex max-w-3xl flex-col items-center text-center animate-fade-up">
+      <span class="inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground backdrop-blur-md">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>
+        14 · August · 2001
+      </span>
+
+      <h1 class="mt-8 font-serif text-6xl font-semibold leading-none tracking-tight text-foreground text-balance sm:text-7xl md:text-8xl">
+        Happy Birthday
+      </h1>
+
+      <p class="gradient-text mt-3 font-script text-5xl leading-tight sm:text-6xl md:text-7xl">
+        My Favorite Person
+      </p>
+
+      <p class="mt-8 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+        Another year of you lighting up the world simply by being in it. Today the whole universe is just quietly celebrating you — and so am I.
+      </p>
+
+      <div class="mt-10 flex items-center gap-3">
+        <a href="#memories" class="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-105">Relive Our Memories</a>
+        <a href="#letter" class="rounded-full border border-border bg-background/40 px-6 py-3 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-secondary">Read The Letter</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MEMORIES TIMELINE ================= -->
+  <section id="memories" class="mx-auto max-w-6xl px-4 py-24">
+    <div class="mb-14 max-w-2xl">
+      <span class="text-xs font-medium uppercase tracking-[0.3em] text-primary">Our Memories</span>
+      <h2 class="mt-3 text-balance font-serif text-4xl font-semibold text-foreground sm:text-5xl">Chapters from our story</h2>
+    </div>
+
+    <div id="timelineTrack" class="relative pl-10 sm:pl-14">
+      <div class="absolute left-[6px] top-2 bottom-2 w-px bg-border sm:left-[10px]"></div>
+      <div id="timelineFill" class="absolute left-[6px] top-2 w-px origin-top bg-foreground transition-[height] duration-150 ease-out sm:left-[10px]" style="height:0%"></div>
+
+      <div class="flex flex-col gap-12 sm:gap-20">
+        <article class="timeline-item relative" data-index="0">
+          <span class="timeline-dot absolute top-2 h-3.5 w-3.5 -translate-x-[calc(2.5rem-1px)] rounded-full border-2 border-border bg-background transition-colors duration-300 sm:-translate-x-[calc(3.5rem-3px)]"></span>
+          <div class="rounded-3xl border border-border bg-card/50 p-8 backdrop-blur-sm sm:p-10">
+            <span class="text-xs font-medium uppercase tracking-[0.25em] text-chapter">Chapter 1</span>
+            <h3 class="mt-3 text-balance font-serif text-3xl font-semibold text-foreground sm:text-4xl">The First Hello</h3>
+            <p class="mt-4 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">It started with a nervous smile and a conversation that refused to end. Neither of us knew it yet, but that ordinary afternoon quietly rewrote the rest of our story.</p>
+          </div>
+        </article>
+
+        <article class="timeline-item relative" data-index="1">
+          <span class="timeline-dot absolute top-2 h-3.5 w-3.5 -translate-x-[calc(2.5rem-1px)] rounded-full border-2 border-border bg-background transition-colors duration-300 sm:-translate-x-[calc(3.5rem-3px)]"></span>
+          <div class="rounded-3xl border border-border bg-card/50 p-8 backdrop-blur-sm sm:p-10">
+            <span class="text-xs font-medium uppercase tracking-[0.25em] text-chapter">Chapter 2</span>
+            <h3 class="mt-3 text-balance font-serif text-3xl font-semibold text-foreground sm:text-4xl">Falling, Slowly</h3>
+            <p class="mt-4 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">Late calls that stretched past midnight, inside jokes only we understood, and the slow realization that my favorite place had somehow become wherever you happened to be.</p>
+          </div>
+        </article>
+
+        <article class="timeline-item relative" data-index="2">
+          <span class="timeline-dot absolute top-2 h-3.5 w-3.5 -translate-x-[calc(2.5rem-1px)] rounded-full border-2 border-border bg-background transition-colors duration-300 sm:-translate-x-[calc(3.5rem-3px)]"></span>
+          <div class="rounded-3xl border border-border bg-card/50 p-8 backdrop-blur-sm sm:p-10">
+            <span class="text-xs font-medium uppercase tracking-[0.25em] text-chapter">Chapter 3</span>
+            <h3 class="mt-3 text-balance font-serif text-3xl font-semibold text-foreground sm:text-4xl">Us, Against the World</h3>
+            <p class="mt-4 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">We learned each other's storms and stillness. Through the hard days and the golden ones, we became a team — a little braver, a little softer, always together.</p>
+          </div>
+        </article>
+
+        <article class="timeline-item relative" data-index="3">
+          <span class="timeline-dot absolute top-2 h-3.5 w-3.5 -translate-x-[calc(2.5rem-1px)] rounded-full border-2 border-border bg-background transition-colors duration-300 sm:-translate-x-[calc(3.5rem-3px)]"></span>
+          <div class="rounded-3xl border border-border bg-card/50 p-8 backdrop-blur-sm sm:p-10">
+            <span class="text-xs font-medium uppercase tracking-[0.25em] text-chapter">Chapter 4</span>
+            <h3 class="mt-3 text-balance font-serif text-3xl font-semibold text-foreground sm:text-4xl">Still Writing</h3>
+            <p class="mt-4 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">Today is another page in a story I never want to finish. Thank you for every chapter so far, and for all the ones we haven't lived yet. Happy birthday, my favorite person.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GALLERY ================= -->
+  <section id="gallery" class="mx-auto max-w-6xl px-4 py-24">
+    <div class="mx-auto mb-12 max-w-2xl text-center">
+      <span class="text-xs font-medium uppercase tracking-[0.3em] text-primary">Gallery</span>
+      <h2 class="mt-3 font-serif text-4xl font-semibold text-foreground text-balance sm:text-5xl">A Few of my favorite shots of you</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+      <!-- each figure: clean floating caption, no boxed background -->
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1494774157365-9e04c6720e47?q=80&w=800&auto=format&fit=crop" alt="Golden hour, always yours" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Golden hour, always yours</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=800&auto=format&fit=crop" alt="Quiet city nights" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Quiet city nights</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=800&auto=format&fit=crop" alt="The way you laugh" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">The way you laugh</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=800&auto=format&fit=crop" alt="Chasing sunsets" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Chasing sunsets</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1495001258031-d1b407bc1776?q=80&w=800&auto=format&fit=crop" alt="Coffee & you" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Coffee &amp; you</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800&auto=format&fit=crop" alt="Under every star" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Under every star</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=800&auto=format&fit=crop" alt="Wandering together" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Wandering together</p>
+        </div>
+      </figure>
+      <figure class="group overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=800&auto=format&fit=crop" alt="Lost in the moment" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);"></div>
+          <p class="pointer-events-none absolute inset-x-0 bottom-3 text-center font-sans text-sm font-medium text-white drop-shadow-sm">Lost in the moment</p>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= MESSAGE IN A BOTTLE ================= -->
+  <section id="letter" class="mx-auto max-w-3xl px-4 py-24">
+    <div class="mx-auto mb-10 max-w-xl text-center">
+      <p class="font-script text-3xl text-chapter sm:text-4xl">Open when found</p>
+    </div>
+
+    <div class="relative flex flex-col items-center">
+      <!-- STATE 1: bottle -->
+      <button id="bottleBtn" type="button" aria-label="Open the message in the bottle" class="group relative flex flex-col items-center rounded-3xl px-8 py-6 outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+        <div class="relative animate-bottle" id="bottleWrap">
+          <svg width="120" height="200" viewBox="0 0 120 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 8px 24px rgb(166 133 250 / 0.35));">
+            <rect x="46" y="6" width="28" height="24" rx="5" fill="var(--accent)" />
+            <rect x="43" y="26" width="34" height="10" rx="4" fill="var(--accent)" opacity="0.8" />
+            <path d="M48 34 h24 v18 c0 4 2 7 5 10 l10 12 c6 7 9 16 9 25 v66 c0 12 -10 22 -22 22 h-28 c-12 0 -22 -10 -22 -22 v-66 c0 -9 3 -18 9 -25 l10 -12 c3 -3 5 -6 5 -10 z" fill="var(--primary)" fill-opacity="0.15" stroke="var(--primary)" stroke-opacity="0.5" stroke-width="2" />
+            <path d="M40 96 c0 -6 2 -12 6 -17 v92 c-4 -3 -6 -8 -6 -14 z" fill="var(--foreground)" fill-opacity="0.1" />
+            <g>
+              <rect x="42" y="120" width="36" height="46" rx="6" fill="var(--chapter)" fill-opacity="0.9" />
+              <rect x="42" y="120" width="36" height="46" rx="6" fill="none" stroke="var(--accent)" stroke-opacity="0.4" stroke-width="1.5" />
+              <line x1="49" y1="132" x2="71" y2="132" stroke="var(--primary)" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" />
+              <line x1="49" y1="141" x2="71" y2="141" stroke="var(--primary)" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" />
+              <line x1="49" y1="150" x2="64" y2="150" stroke="var(--primary)" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" />
+              <rect x="57" y="116" width="6" height="54" rx="2" fill="var(--accent)" fill-opacity="0.7" />
+            </g>
+          </svg>
+        </div>
+        <div class="mt-2 h-6 w-40 rounded-[100%] bg-primary/20 blur-md transition-all duration-500 group-hover:w-48 group-hover:bg-primary/30"></div>
+        <span class="mt-4 text-sm font-medium uppercase tracking-[0.25em] text-muted-foreground transition-colors group-hover:text-foreground">Tap to open</span>
+      </button>
+
+      <!-- STATE 2: letter (hidden by default, filled via JS typing effect) -->
+      <article id="letterCard" class="hidden relative w-full overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-2xl sm:p-12" style="box-shadow: 0 25px 50px -12px color-mix(in oklab, var(--primary) 20%, transparent);">
+        <div class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl"></div>
+
+        <svg class="relative h-8 w-8 text-primary/60" viewBox="0 0 24 24" fill="currentColor"><path d="M9 7H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2v3l4-3V9a2 2 0 0 0-2-2Zm10 0h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2v3l4-3V9a2 2 0 0 0-2-2Z"/></svg>
+
+        <p class="relative mt-2 font-script text-2xl text-chapter sm:text-3xl">From my heart to yours</p>
+
+        <div id="letterText" class="relative mt-5 space-y-4 text-pretty leading-relaxed text-muted-foreground"></div>
+
+        <button id="sealBtn" type="button" class="relative mt-8 text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:text-foreground">Seal it back</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= WISHES ================= -->
+  <section id="wishes" class="mx-auto max-w-6xl px-4 py-24 pb-32">
+    <div class="mx-auto mb-12 max-w-2xl text-center">
+      <span class="text-xs font-medium uppercase tracking-[0.3em] text-primary">Wishes</span>
+      <h2 class="mt-3 font-serif text-4xl font-semibold text-foreground text-balance sm:text-5xl">Everyone Wanted To Say</h2>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <article class="rounded-2xl border border-border bg-card/50 p-6 backdrop-blur-sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <p class="mt-3 text-pretty leading-relaxed text-foreground">Our greatest joy. Happy birthday, sweetheart.</p>
+        <p class="mt-4 text-sm font-medium text-muted-foreground">— Mom &amp; Dad</p>
+      </article>
+      <article class="rounded-2xl border border-border bg-card/50 p-6 backdrop-blur-sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <p class="mt-3 text-pretty leading-relaxed text-foreground">To more adventures and terrible karaoke. Love you!</p>
+        <p class="mt-4 text-sm font-medium text-muted-foreground">— Best Friend</p>
+      </article>
+      <article class="rounded-2xl border border-border bg-card/50 p-6 backdrop-blur-sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <p class="mt-3 text-pretty leading-relaxed text-foreground">Cheers to the kindest human we know.</p>
+        <p class="mt-4 text-sm font-medium text-muted-foreground">— The Team</p>
+      </article>
+      <article class="rounded-2xl border border-border bg-card/50 p-6 backdrop-blur-sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <p class="mt-3 text-pretty leading-relaxed text-foreground">Every candle you blow out is a wish I already made for you.</p>
+        <p class="mt-4 text-sm font-medium text-muted-foreground">— Me</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= MUSIC PLAYER ================= -->
+  <div class="fixed bottom-4 left-4 z-50 flex items-end gap-3">
+    <button id="vinylBtn" type="button" aria-label="Show music player" class="animate-floaty relative h-16 w-16 shrink-0 rounded-full outline-none ring-primary/50 transition-transform hover:scale-105 focus-visible:ring-2" style="box-shadow: 0 8px 30px color-mix(in oklab, var(--primary) 50%, transparent);">
+      <span id="vinylDisc" class="absolute inset-0 rounded-full" style="background: repeating-radial-gradient(circle at center, #1e1730 0 3px, #2a2140 3px 5px);"></span>
+      <span class="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background"></span>
+    </button>
+
+    <div id="playerCard" class="hidden w-72 animate-fade-up rounded-2xl border border-border bg-card/70 p-4 shadow-2xl backdrop-blur-xl">
+      <div class="flex items-start justify-between">
+        <span class="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">Now Playing</span>
+        <button id="closePlayerBtn" type="button" aria-label="Close player" class="text-muted-foreground transition-colors hover:text-foreground">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="mt-3 flex items-center gap-3">
+        <div class="h-16 w-16 shrink-0 rounded-xl" style="background: repeating-radial-gradient(circle at center, #1e1730 0 3px, #2a2140 3px 5px);"></div>
+        <div class="min-w-0">
+          <p class="truncate font-serif text-base font-semibold text-foreground">Our Song</p>
+          <p class="truncate text-sm text-muted-foreground">Instrumental</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+          <div id="progressBar" class="h-full rounded-full transition-[width] duration-200" style="width:0%; background: linear-gradient(90deg, var(--primary), var(--accent));"></div>
+        </div>
+        <div class="mt-1.5 flex justify-between text-[11px] text-muted-foreground">
+          <span id="currentTimeLabel">0:00</span>
+          <span id="durationLabel">0:00</span>
+        </div>
+      </div>
+
+      <div class="mt-3 flex items-center justify-center gap-6">
+        <button id="prevBtn" type="button" aria-label="Restart" class="text-muted-foreground transition-colors hover:text-foreground">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><rect x="5" y="4" width="2" height="16"/></svg>
+        </button>
+        <button id="playPauseBtn" type="button" aria-label="Play" class="flex h-11 w-11 items-center justify-center rounded-full bg-foreground text-background transition-transform hover:scale-105">
+          <svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg id="pauseIcon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button id="nextBtn" type="button" aria-label="Restart" class="text-muted-foreground transition-colors hover:text-foreground">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="2" height="16"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="none" loop></audio>
+
+  <footer class="border-t border-border py-8 text-center text-xs text-muted-foreground">Made with love · Viin Birthday</footer>
+</main>
+
+<script>
+  // ---------- Mobile nav toggle ----------
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuIconOpen = document.getElementById('menuIconOpen');
+  const menuIconClose = document.getElementById('menuIconClose');
+
+  function setMenu(open){
+    mobileMenu.classList.toggle('hidden', !open);
+    mobileMenu.classList.toggle('flex', open);
+    menuIconOpen.classList.toggle('hidden', open);
+    menuIconClose.classList.toggle('hidden', !open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  let menuOpen = false;
+  menuBtn.addEventListener('click', () => { menuOpen = !menuOpen; setMenu(menuOpen); });
+  document.querySelectorAll('.mobile-link').forEach(a => a.addEventListener('click', () => { menuOpen = false; setMenu(false); }));
+
+  // ---------- Timeline scroll progress ----------
+  const track = document.getElementById('timelineTrack');
+  const fill = document.getElementById('timelineFill');
+  const items = document.querySelectorAll('.timeline-item');
+
+  function updateTimeline(){
+    const rect = track.getBoundingClientRect();
+    const anchor = window.innerHeight * 0.5;
+    let raw = (anchor - rect.top) / rect.height;
+    raw = Math.min(1, Math.max(0, raw));
+    fill.style.height = `calc((100% - 1rem) * ${raw})`;
+
+    items.forEach((item) => {
+      const i = Number(item.dataset.index);
+      const reached = raw >= i / items.length;
+      const dot = item.querySelector('.timeline-dot');
+      if (reached) {
+        dot.classList.add('border-foreground', 'bg-foreground');
+        dot.classList.remove('border-border', 'bg-background');
+      } else {
+        dot.classList.remove('border-foreground', 'bg-foreground');
+        dot.classList.add('border-border', 'bg-background');
+      }
+    });
+  }
+  updateTimeline();
+  window.addEventListener('scroll', updateTimeline, { passive: true });
+  window.addEventListener('resize', updateTimeline);
+
+  // ---------- Message in a bottle (typing effect) ----------
+  const bottleBtn = document.getElementById('bottleBtn');
+  const bottleWrap = document.getElementById('bottleWrap');
+  const letterCard = document.getElementById('letterCard');
+  const letterText = document.getElementById('letterText');
+  const sealBtn = document.getElementById('sealBtn');
+
+  const letterParagraphs = [
+    "My favorite person, if I could gift you anything today, it would be the way you look to everyone who loves you — patient, radiant, and impossibly kind.",
+    "Thank you for the quiet mornings, the ridiculous laughs, and for making ordinary days feel like something worth remembering. You are my favorite chapter in every story.",
+    "So here is a little message, sealed and sent across every ordinary day, hoping it finds you exactly when you need to remember how deeply you are loved.",
+  ];
+  const letterSignature = "Happy Birthday, always yours.";
+
+  let typingActive = false;
+
+  function typeParagraphs(container, paragraphs, signature, onDone){
+    let pIndex = 0, cIndex = 0;
+    function nextChar(){
+      if (!typingActive) return;
+      if (pIndex >= paragraphs.length){
+        const sig = document.createElement('p');
+        sig.className = 'font-script text-2xl text-foreground sm:text-3xl';
+        container.appendChild(sig);
+        let sIndex = 0;
+        sig.classList.add('typing-cursor');
+        (function typeSig(){
+          if (!typingActive) return;
+          if (sIndex < signature.length){
+            sig.textContent = signature.slice(0, sIndex + 1);
+            sIndex++;
+            setTimeout(typeSig, 35);
+          } else {
+            sig.classList.remove('typing-cursor');
+            if (onDone) onDone();
+          }
+        })();
+        return;
+      }
+      let p = container.querySelectorAll('p.paragraph-line')[pIndex];
+      if (!p){
+        p = document.createElement('p');
+        p.className = 'paragraph-line typing-cursor';
+        container.appendChild(p);
+      }
+      const text = paragraphs[pIndex];
+      p.textContent = text.slice(0, cIndex + 1);
+      cIndex++;
+      if (cIndex >= text.length){
+        p.classList.remove('typing-cursor');
+        pIndex++;
+        cIndex = 0;
+        setTimeout(nextChar, 220);
+      } else {
+        setTimeout(nextChar, 18);
+      }
+    }
+    nextChar();
+  }
+
+  bottleBtn.addEventListener('click', () => {
+    bottleWrap.parentElement.classList.add('bottle-leaving');
+    setTimeout(() => {
+      bottleBtn.classList.add('hidden');
+      letterCard.classList.remove('hidden');
+      letterCard.classList.add('animate-letter-pop');
+      letterText.innerHTML = '';
+      typingActive = true;
+      typeParagraphs(letterText, letterParagraphs, letterSignature);
+    }, 550);
+  });
+
+  sealBtn.addEventListener('click', () => {
+    typingActive = false;
+    letterCard.classList.add('hidden');
+    letterText.innerHTML = '';
+    bottleBtn.classList.remove('hidden');
+    bottleBtn.parentElement.classList.remove('bottle-leaving');
+    bottleWrap.parentElement.classList.remove('bottle-leaving');
+  });
+
+  // ---------- Music player ----------
+  const vinylBtn = document.getElementById('vinylBtn');
+  const vinylDisc = document.getElementById('vinylDisc');
+  const playerCard = document.getElementById('playerCard');
+  const closePlayerBtn = document.getElementById('closePlayerBtn');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const progressBar = document.getElementById('progressBar');
+  const currentTimeLabel = document.getElementById('currentTimeLabel');
+  const durationLabel = document.getElementById('durationLabel');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const audio = document.getElementById('bgAudio');
+
+  function fmt(sec){
+    if (!isFinite(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  vinylBtn.addEventListener('click', () => {
+    const open = playerCard.classList.contains('hidden');
+    playerCard.classList.toggle('hidden', !open);
+    vinylBtn.setAttribute('aria-label', open ? 'Hide music player' : 'Show music player');
+  });
+  closePlayerBtn.addEventListener('click', () => playerCard.classList.add('hidden'));
+
+  playPauseBtn.addEventListener('click', () => {
+    if (audio.paused){
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  });
+
+  audio.addEventListener('play', () => {
+    playIcon.classList.add('hidden');
+    pauseIcon.classList.remove('hidden');
+    vinylDisc.classList.add('animate-vinyl');
+  });
+  audio.addEventListener('pause', () => {
+    playIcon.classList.remove('hidden');
+    pauseIcon.classList.add('hidden');
+    vinylDisc.classList.remove('animate-vinyl');
+  });
+  audio.addEventListener('loadedmetadata', () => { durationLabel.textContent = fmt(audio.duration); });
+  audio.addEventListener('timeupdate', () => {
+    const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    progressBar.style.width = pct + '%';
+    currentTimeLabel.textContent = fmt(audio.currentTime);
+  });
+
+  prevBtn.addEventListener('click', () => { audio.currentTime = 0; });
+  nextBtn.addEventListener('click', () => { audio.currentTime = 0; });
+</script>
+
+<script>
+  // ---------- Sea bubble background (vanilla JS, tidak menghalangi klik) ----------
+  (function(){
+    const container = document.getElementById('bubbleContainer');
+    if (!container) return;
+
+    function spawnBubble(){
+      const bubble = document.createElement('span');
+      bubble.className = 'bubble';
+
+      const size = Math.random() * 18 + 10;      // 10px - 28px
+      const startX = Math.random() * 100;        // 0 - 100vw
+      const riseDuration = Math.random() * 7 + 7;   // 7s - 14s (naik ke atas)
+      const wobbleDuration = riseDuration / 2;      // goyangan lebih cepat dari naiknya
+      const wobbleAmount = Math.random() * 44 + 16; // 16px - 60px goyangan kiri-kanan
+      const delay = Math.random() * 1.5;
+      const baseOpacity = (Math.random() * 0.3 + 0.6).toFixed(2); // 0.6 - 0.9
+
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = startX + 'vw';
+      bubble.style.opacity = baseOpacity;
+      bubble.style.setProperty('--wobble', wobbleAmount + 'px');
+      bubble.style.animationDuration = `${riseDuration}s, ${wobbleDuration}s`;
+      bubble.style.animationDelay = `${delay}s, ${delay}s`;
+
+      container.appendChild(bubble);
+      setTimeout(() => bubble.remove(), (riseDuration + delay) * 1000 + 200);
+    }
+
+    // Gelembung awal biar langsung ramai saat halaman dibuka
+    for (let i = 0; i < 22; i++) setTimeout(spawnBubble, i * 140);
+
+    // Terus munculkan gelembung baru secara berkala
+    setInterval(spawnBubble, 260);
+  })();
+</script>
+</body>
+</html>
